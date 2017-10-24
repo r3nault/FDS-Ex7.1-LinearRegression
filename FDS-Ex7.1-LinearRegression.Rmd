@@ -1,0 +1,85 @@
+---
+title: "Exercise 7.1 Linear Regression"
+author: "James Hooi"
+date: "October 25, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+states.data <- readRDS("dataSets/states.rds")
+```
+
+## Least squares regression
+
+Use the *states.rds* data set. Fit a model predicting energy consumed per capita (energy) from the percentage of residents living in metropolitan areas (metro).
+
+Check out the base data and plot energy vs metro:
+
+```{r plot1, echo=TRUE, eval=TRUE, warning=FALSE}
+plot(energy ~ metro, data = states.data)
+```
+
+Looks like a slightly negative relationship, does a linear regression support this?
+
+```{r mdl1, echo=TRUE, eval=TRUE, warning=FALSE}
+energyReg <- lm(energy ~ metro, data = states.data)
+summary(energyReg)
+```
+
+The least squares regression supports metro having a negative relationship with energy. metro is a significant variable with respect to energy, however the R^2^ and adjusted R^2^ are both quite low.
+
+```{r mdleval1, echo=TRUE, eval=TRUE, warning=FALSE}
+par(mar = c(4, 4, 2, 2), mfrow = c(1, 2))
+plot(energyReg, which = c(1, 2))
+```
+
+The model becomes a less reliable predictor at higher energy levels, i.e. towards the left of the raw data plot energy v metro. This is expected as the data is sparse here.
+
+### Try adding additional predictor
+
+I added density to the model to see if it improves or degrades.
+
+```{r plot2, echo=TRUE, eval=TRUE, warning=FALSE}
+par(mar = c(4, 4, 2, 2), mfrow = c(1, 2))
+plot(energy ~ metro, data = states.data)
+plot(energy ~ density, data = states.data)
+```
+
+Both look like a slightly negative relationship, although the data is clustered around different areas.
+
+```{r mdl2, echo=TRUE, eval=TRUE, warning=FALSE}
+energyReg2 <- lm(energy ~ metro + density, data = states.data)
+summary(energyReg2)
+```
+
+The least squares regression supports both variables having a negative relationship with energy, however neither is significant in spite of the R^2^ and adjusted R^2^ improving.
+
+```{r mdleval2, echo=TRUE, eval=TRUE, warning=FALSE}
+par(mar = c(4, 4, 2, 2), mfrow = c(1, 2))
+plot(energyReg2, which = c(1, 2))
+```
+
+As before, the model becomes a less reliable predictor at higher energy levels, i.e. towards the left of the raw data plot energy v metro + density.
+
+
+## Interactions
+
+Tested the interaction between metro and density variables.
+
+```{r inter1, echo=TRUE, eval=TRUE, warning=FALSE}
+energyReg3 <- lm(energy ~ metro*density, data = states.data)
+coef(summary(energyReg3))
+```
+
+The slope between the two variables is close to zero so they have a minimal impact on each other.
+
+Looking at regions, it does appear there are significant differences in the relationship between energy and metro given each region. While all have a negative relationship, the slopes of the lines are quite different (as shown in the following plot).
+
+```{r inter2, echo=TRUE, eval=TRUE, warning=FALSE}
+coef(summary(lm(energy ~ metro + region, data = states.data)))
+ggplot(states.data[which(!is.na(states.data$region)),], aes(x=metro, y=energy, col=region)) +
+  geom_point() + facet_grid(. ~ region) + stat_smooth(method = "lm", se = FALSE, col="black")
+```
