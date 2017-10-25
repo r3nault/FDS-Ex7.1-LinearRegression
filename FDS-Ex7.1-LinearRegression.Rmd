@@ -29,7 +29,7 @@ energyReg <- lm(energy ~ metro, data = states.data)
 summary(energyReg)
 ```
 
-The least squares regression supports metro having a negative relationship with energy. metro is a significant variable with respect to energy, however the R^2^ and adjusted R^2^ are both quite low.
+The least squares regression supports metro having a slight negative relationship with energy. metro is a significant variable with respect to energy, however the R^2^ and adjusted R^2^ are both quite low.
 
 ```{r mdleval1, echo=TRUE, eval=TRUE, warning=FALSE}
 par(mar = c(4, 4, 2, 2), mfrow = c(1, 2))
@@ -83,3 +83,12 @@ coef(summary(lm(energy ~ metro + region, data = states.data)))
 ggplot(states.data[which(!is.na(states.data$region)),], aes(x=metro, y=energy, col=region)) +
   geom_point() + facet_grid(. ~ region) + stat_smooth(method = "lm", se = FALSE, col="black")
 ```
+
+Seeing if region improves the model:
+
+```{r final, echo=TRUE, eval=TRUE, warning=FALSE}
+energyReg4 <- lm(energy ~ metro + region, data = states.data)
+summary(energyReg4)
+```
+
+The R^2^ and adjusted R^2^ both go up although two of the regions are not significant predictors. Adding other variables does not improve on this model.

@@ -237,3 +237,15 @@ energyReg3 <- lm(energy ~ metro*density, data = states.data)
 coef(summary(energyReg3))
 
 coef(summary(lm(energy ~ metro + region, data = states.data)))
+
+
+
+
+
+
+
+
+
+
+## looking for a better model than R2 0.2135, adj R2 0.1435
+summary(lm(energy ~ metro + income + region, data = states.data))
